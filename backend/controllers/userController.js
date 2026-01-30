@@ -33,4 +33,22 @@ const registerUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser };
+const getAllNonAdminUsers = async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT id, name, email, role FROM users WHERE role != $1",
+      ["admin"]
+    );
+
+    res.status(200).json({
+      count: result.rows.length,
+      users: result.rows,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+module.exports = { registerUser, getAllNonAdminUsers };
