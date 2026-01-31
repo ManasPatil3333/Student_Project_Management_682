@@ -62,20 +62,29 @@ const getProjects = async (req, res) => {
   }
 };
 
-const db = require("../config/db");
+// const db = require("../config/db");
 
 const deleteProject = async (req, res) => {
   try {
     const { id } = req.params;
+    await pool.query(
+      "DELETE FROM project_members WHERE project_id = $1",
+      [id]
+    );
 
-    await pool.query("DELETE FROM projects WHERE id = $1", [id]);
+    await pool.query(
+      "DELETE FROM projects WHERE id = $1",
+      [id]
+    );
 
     res.json({ message: "Project deleted successfully" });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 module.exports = {
   createProject,
