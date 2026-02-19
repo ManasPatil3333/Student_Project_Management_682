@@ -2,11 +2,13 @@ const pool = require("../config/db");
 
 const createProject = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, status } = req.body;
 
     const project = await pool.query(
-      "INSERT INTO projects (title, description) VALUES ($1, $2) RETURNING *",
-      [title, description]
+      `INSERT INTO projects (title, description, status, progress)
+       VALUES ($1, $2, $3, $4)
+       RETURNING *`,
+      [title, description, status || "active", 0]
     );
 
     res.status(201).json(project.rows[0]);
@@ -15,6 +17,8 @@ const createProject = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 const assignMember = async (req, res) => {
   try {
@@ -85,10 +89,61 @@ const deleteProject = async (req, res) => {
   }
 };
 
+// ================= UPDATE PROJECT =================
+const updateProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description, status } = req.body;
+
+    const result = await pool.query(
+      `UPDATE projects
+       SET title = $1, description = $2, status = $3
+       WHERE id = $4
+       RETURNING *`,
+      [title, description, status, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.json(result.rows[0]);
+
+  } catch (error) {
+    console.error("Update Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const updateProgress = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { progress } = req.body;
+
+    let status = progress == 100 ? "completed" : "active";
+
+    const result = await pool.query(
+      `UPDATE projects
+       SET progress = $1, status = $2
+       WHERE id = $3
+       RETURNING *`,
+      [progress, status, id]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 
 module.exports = {
   createProject,
   assignMember,
   getProjects,
   deleteProject, 
+  updateProject,
+  updateProgress
 };

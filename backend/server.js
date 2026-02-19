@@ -6,6 +6,7 @@ const pool = require("./config/db");
 const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const projectRoutes = require("./routes/projectRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes); 
 app.use("/api/projects", projectRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
     res.send("Student Project Management API is running");

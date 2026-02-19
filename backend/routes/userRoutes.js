@@ -14,6 +14,4 @@ router.get(
   getAllNonAdminUsers
 );
 
-
-
 module.exports = router;
